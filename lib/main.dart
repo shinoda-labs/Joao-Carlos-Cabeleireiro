@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:joao_carlos_cabelereiro/ui/home_activity.dart';
+import 'package:joao_carlos_cabelereiro/ui/new_home_activity.dart';
 
 void main() => runApp(JoaoCarlosCabelereiro());
 
@@ -13,7 +14,7 @@ class JoaoCarlosCabelereiro extends StatelessWidget {
         primarySwatch: Colors.yellow
       ),
       debugShowCheckedModeBanner: false,
-      home: HomeActivity(),
+      home: NewHomeActivity(),
     );
   }
 }

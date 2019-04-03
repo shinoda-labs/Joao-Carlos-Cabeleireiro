@@ -9,6 +9,7 @@ class HomeActivity extends StatefulWidget {
 class _HomeActivityState extends State<HomeActivity> {
   @override
   Widget build(BuildContext context) {
+
     Widget _buildBodyBackground() => Container(
           decoration: BoxDecoration(
               gradient: LinearGradient(colors: [
@@ -29,16 +30,21 @@ class _HomeActivityState extends State<HomeActivity> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Text(text, style: TextStyle(fontSize: 18.0, fontStyle: FontStyle.normal, fontWeight: FontWeight.w700, ),)
+                    CircleAvatar(
+                      backgroundColor: Colors.yellow,
+                      child: Icon(
+                        icon,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Text(
+                      text,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 30.0, fontWeight: FontWeight.bold),
+                    )
                   ],
-                )
-                /*CircleAvatar(
-                  backgroundColor: color,
-                  child: Icon(
-                    icon,
-                    color: Colors.white,
-                  ),
-                )*/,
+                ),
               )));
     }
 
@@ -69,16 +75,19 @@ class _HomeActivityState extends State<HomeActivity> {
                 StaggeredTile.count(2, 1),
               ],
               children: <Widget>[
-                _tile(Icons.donut_small, "Agendar Horário"),
-                _tile(Icons.grade, "Meus Horários"),
-                _tile(Icons.group_add, "Teste"),
-                _tile(Icons.bug_report, "Teste"),
-                _tile(Icons.opacity, "Teste")
+                _tile(Icons.access_time, "Agendar Horário"),
+                _tile(Icons.timer, "Meus Horários"),
+                _tile(Icons.map, "Como chegar"),
+                _tile(Icons.person, "Perfil"),
+                _tile(Icons.whatshot, "Sobre o App")
               ],
             )
           ],
         )
       ],
     );
+
+  
   }
+  
 }
