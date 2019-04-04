@@ -17,6 +17,7 @@ class _NewHomeActivityState extends State<NewHomeActivity> {
 
   String _barber;
   String _time;
+  String _service;
 
   DateTime _date = new DateTime.now();
 
@@ -307,6 +308,7 @@ class _NewHomeActivityState extends State<NewHomeActivity> {
                     Text("Selecione um Serviço",
                         style: TextStyle(
                             fontSize: 20, fontWeight: FontWeight.w200)),
+                    SizedBox(height: 8.0),
                     FutureBuilder<QuerySnapshot>(
                       future: Firestore.instance
                           .collection("services")
@@ -341,15 +343,50 @@ class _NewHomeActivityState extends State<NewHomeActivity> {
                                 ),
                               );
                             } else {
-                              //ESCOLHER QUAL VAI SER A VIEW UTILIZADA
-                              return Text(
-                                "Soon",
-                                style: TextStyle(fontWeight: FontWeight.w200),
+                              return ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: snapshot.data.documents.length,
+                                itemBuilder: (context, index) {
+                                  return ListTile(
+                                    onTap: () {
+                                      setState(() {
+                                        service = true;
+                                        _service = snapshot.data
+                                            .documents[index].data["title"];
+                                        Navigator.of(context).pop();
+                                      });
+                                    },
+                                    leading: CircleAvatar(
+                                      radius: 25.0,
+                                      backgroundColor: Colors.yellow,
+                                      backgroundImage: NetworkImage(snapshot
+                                          .data.documents[index].data["image"]),
+                                    ),
+                                    title: Text(
+                                      snapshot
+                                          .data.documents[index].data["title"],
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w300),
+                                    ),
+                                    trailing: Column(
+                                      children: <Widget>[
+                                        Text(
+                                          "R\$${snapshot.data.documents[index].data["price"]}",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w300),
+                                        ),
+                                        Text(
+                                            "${snapshot.data.documents[index].data["time"]} min")
+                                      ],
+                                    ),
+                                  );
+                                },
                               );
                             }
                         }
                       },
                     ),
+                    SizedBox(height: 8.0),
                     RaisedButton(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24),
@@ -429,10 +466,7 @@ class _NewHomeActivityState extends State<NewHomeActivity> {
                         height: 55.0,
                         child: InkWell(
                           onTap: () {
-                            setState(() {
-                              _showService(context);
-                              service = true;
-                            });
+                            _showService(context);
                           },
                           child: Row(
                             children: <Widget>[
@@ -467,7 +501,7 @@ class _NewHomeActivityState extends State<NewHomeActivity> {
                                                 fontWeight: FontWeight.w200),
                                           ),
                                           Text(
-                                            "Corte de Cabelo com Máquina",
+                                            _service,
                                             style: TextStyle(
                                               fontSize: 13.0,
                                               fontWeight: FontWeight.w300,
