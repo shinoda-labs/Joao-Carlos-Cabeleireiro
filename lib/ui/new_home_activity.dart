@@ -16,38 +16,11 @@ class _NewHomeActivityState extends State<NewHomeActivity> {
   bool time = false;
 
   String _barber;
-  int timeSelected;
+  String _time;
 
   DateTime _date = new DateTime.now();
 
-  var _horarios = <String>[
-    "08:00",
-    "08:30",
-    "08:00",
-    "09:00",
-    "09:30",
-    "10:00",
-    "10:30",
-    "11:00",
-    "11:30",
-    "13:00",
-    "13:30",
-    "14:00",
-    "14:30",
-    "15:00",
-    "15:30",
-    "16:00",
-    "16:30",
-    "17:00",
-    "18:00",
-    "18:30",
-    "19:00",
-    "19:30",
-    "20:00",
-    "20:30",
-    "21:00"
-  ];
-
+  //###################### FUNÇÃO SELECIONAR DATA ######################
   Future<Null> _selectDate(BuildContext context) async {
     final DateTime picked = await showDatePicker(
       context: context,
@@ -65,6 +38,7 @@ class _NewHomeActivityState extends State<NewHomeActivity> {
     }
   }
 
+  //###################### FUNÇÃO SELECIONAR HORÁRIO ######################
   void _showTime(BuildContext context) {
     showModalBottomSheet(
         context: context,
@@ -81,46 +55,88 @@ class _NewHomeActivityState extends State<NewHomeActivity> {
                     Text("Selecione um Horário",
                         style: TextStyle(
                             fontSize: 20, fontWeight: FontWeight.w200)),
-                    GridView.builder(
-                      shrinkWrap: true,
-                      padding: EdgeInsets.all(1.0),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 4,
-                          mainAxisSpacing: 1.0,
-                          crossAxisSpacing: 1.0,
-                          childAspectRatio: 1),
-                      itemCount: _horarios.length,
-                      itemBuilder: (context, index) {
-                        return InkWell(
-                          onTap: () {
-                            setState(() {
-                              time = true;
-                              timeSelected = index;
-                              Navigator.of(context).pop();
-                            });
-                          },
-                          child: Card(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
+                    SizedBox(height: 8.0),
+                    FutureBuilder<QuerySnapshot>(
+                      future: Firestore.instance
+                          .collection("schedules")
+                          .getDocuments(),
+                      builder: (context, snapshot) {
+                        switch (snapshot.connectionState) {
+                          case ConnectionState.active:
+                          case ConnectionState.waiting:
+                            return Center(
+                              child: Padding(
+                                padding:
+                                    EdgeInsets.only(top: 16.0, bottom: 16.0),
+                                child: CircularProgressIndicator(),
                               ),
-                              child: Container(
-                                color: Colors.green,
-                                child: Padding(
-                                  padding: EdgeInsets.all(4),
+                            );
+                            break;
+                          case ConnectionState.none:
+                          case ConnectionState.done:
+                            if (!snapshot.hasData) {
+                              return SizedBox(
+                                height: 80,
+                                child: Container(
+                                  padding:
+                                      EdgeInsets.only(top: 8.0, bottom: 8.0),
                                   child: Center(
                                     child: Text(
-                                      _horarios[index],
+                                      "Sem horários disponiveis no momento!",
                                       style: TextStyle(
-                                        fontWeight: FontWeight.w200,
-                                        color: Colors.white,
-                                      ),
+                                          fontWeight: FontWeight.w200),
                                     ),
                                   ),
                                 ),
-                              )),
-                        );
+                              );
+                            } else {
+                              return GridView.builder(
+                                shrinkWrap: true,
+                                padding: EdgeInsets.all(1.0),
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 4,
+                                        mainAxisSpacing: 4.0,
+                                        crossAxisSpacing: 4.0,
+                                        childAspectRatio: 2.7),
+                                itemCount: snapshot.data.documents.length,
+                                itemBuilder: (context, index) {
+                                  return InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        time = true;
+                                        _time = snapshot
+                                            .data.documents[index].data["hour"];
+                                        Navigator.of(context).pop();
+                                      });
+                                    },
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: Container(
+                                        color: Colors.green,
+                                        child: Padding(
+                                          padding: EdgeInsets.all(4),
+                                          child: Center(
+                                            child: Text(
+                                              snapshot.data.documents[index]
+                                                  .data["hour"],
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w300,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            }
+                        }
                       },
                     ),
+                    SizedBox(height: 8.0),
                     RaisedButton(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24),
@@ -140,6 +156,7 @@ class _NewHomeActivityState extends State<NewHomeActivity> {
         });
   }
 
+  //###################### FUNÇÃO SELECIONAR CABELEIREIRO ######################
   void _showBarber(BuildContext context) {
     showModalBottomSheet(
         context: context,
@@ -205,7 +222,8 @@ class _NewHomeActivityState extends State<NewHomeActivity> {
                                       onTap: () {
                                         setState(() {
                                           barber = true;
-                                          _barber = snapshot.data.documents[index].data["name"];
+                                          _barber = snapshot.data
+                                              .documents[index].data["name"];
                                           Navigator.of(context).pop();
                                         });
                                       },
@@ -238,7 +256,8 @@ class _NewHomeActivityState extends State<NewHomeActivity> {
                                             height: 8.0,
                                           ),
                                           Text(
-                                            snapshot.data.documents[index].data["name"],
+                                            snapshot.data.documents[index]
+                                                .data["name"],
                                             style: TextStyle(
                                                 fontSize: 14.0,
                                                 fontWeight: FontWeight.w200),
@@ -271,6 +290,7 @@ class _NewHomeActivityState extends State<NewHomeActivity> {
         });
   }
 
+  //###################### FUNÇÃO SELECIONAR SERVIÇOS ######################
   void _showService(BuildContext context) {
     showModalBottomSheet(
         context: context,
@@ -287,18 +307,48 @@ class _NewHomeActivityState extends State<NewHomeActivity> {
                     Text("Selecione um Serviço",
                         style: TextStyle(
                             fontSize: 20, fontWeight: FontWeight.w200)),
-                    //Aqui sera o gridview com os serviços
-                    SizedBox(
-                      height: 80,
-                      child: Container(
-                        padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
-                        child: Center(
-                          child: Text(
-                            "Sem serviços disponiveis no momento!",
-                            style: TextStyle(fontWeight: FontWeight.w200),
-                          ),
-                        ),
-                      ),
+                    FutureBuilder<QuerySnapshot>(
+                      future: Firestore.instance
+                          .collection("services")
+                          .getDocuments(),
+                      builder: (context, snapshot) {
+                        switch (snapshot.connectionState) {
+                          case ConnectionState.active:
+                          case ConnectionState.waiting:
+                            return Center(
+                              child: Padding(
+                                padding:
+                                    EdgeInsets.only(top: 16.0, bottom: 16.0),
+                                child: CircularProgressIndicator(),
+                              ),
+                            );
+                            break;
+                          case ConnectionState.none:
+                          case ConnectionState.done:
+                            if (!snapshot.hasData) {
+                              return SizedBox(
+                                height: 80,
+                                child: Container(
+                                  padding:
+                                      EdgeInsets.only(top: 8.0, bottom: 8.0),
+                                  child: Center(
+                                    child: Text(
+                                      "Sem serviços disponiveis no momento!",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w200),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            } else {
+                              //ESCOLHER QUAL VAI SER A VIEW UTILIZADA
+                              return Text(
+                                "Soon",
+                                style: TextStyle(fontWeight: FontWeight.w200),
+                              );
+                            }
+                        }
+                      },
                     ),
                     RaisedButton(
                         shape: RoundedRectangleBorder(
@@ -322,7 +372,7 @@ class _NewHomeActivityState extends State<NewHomeActivity> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("João Carlos Cabelereiro"),
+        title: Text("João Carlos Cabeleireiro"),
         centerTitle: true,
       ),
       body: Center(
@@ -730,7 +780,7 @@ class _NewHomeActivityState extends State<NewHomeActivity> {
                                                 fontWeight: FontWeight.w200),
                                           ),
                                           Text(
-                                            _horarios[timeSelected],
+                                            _time,
                                             style: TextStyle(
                                               fontSize: 13.0,
                                               fontWeight: FontWeight.w300,
